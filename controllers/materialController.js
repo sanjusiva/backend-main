@@ -12,6 +12,12 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/:id', (req, res) => {
+    Material.find({_id:req.params.id},(err, docs) => {
+        if (!err) { res.send(docs[0]); }
+        else { console.log('Error in Retriving Materials :' + JSON.stringify(err, undefined, 2)); }
+    });
+});
 
 router.get('/:Domain/:course', (req, res) => {
    Material.find({Domain:req.params.Domain},{_id:0},(err,doc)=>{
@@ -19,7 +25,7 @@ router.get('/:Domain/:course', (req, res) => {
         res.send(doc)
     });
 });
-router.get('/:course',(req,res)=>{
+router.get('/:course/:course/:course',(req,res)=>{
     Material.find({course_id:req.params.course},{_id:0,cost:1},(err,doc)=>{
         console.log(doc[0]);
         res.send(doc[0]);
@@ -53,6 +59,9 @@ router.post('/',(req,res)=>{
 
 
 router.put('/:id',(req,res)=>{
+    console.log("BTS")
+    console.log(req.params.id);
+    console.log(req.body.Domain);
     if(!ObjectId.isValid(req.params.id))
         return res.status(400).send(`No record with the given id : $(req.params.id)`);
     var mat={

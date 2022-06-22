@@ -30,15 +30,12 @@ router.get('/:username/:password', (req, res) => {
 });
 
 router.put('/:course/:user',(req,res)=>{
-   // User.updateOne({name:req.params.user},{$set:{paidCourse_id:[100]}},(err,doc)=>{
-    User.updateOne({name:req.params.user},{$push:{paidCourse_id:req.params.course}},(err,doc)=>{
-        if(!err){
+    console.log(typeof(req.params.course));
+   //User.updateOne({name:req.params.user},{$set:{paidCourse_id:[100]}},(err,doc)=>{
+  //User.updateOne({name:req.params.user},{$push:{paidCourse_id:req.params.course}},(err,doc)=>{
+  User.findOneAndUpdate({name:req.params.user},{$push:{paidCourse_id:req.params.course}},(err,doc)=>{
         console.log(doc);
         res.send(doc)
-    }
-        else{
-            console.log('Error in Retriving Users :' + JSON.stringify(err, undefined, 2)); 
-        }
     })
 })
 router.get('/:course/:name/:name',(req,res)=>{
