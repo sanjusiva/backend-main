@@ -30,11 +30,18 @@ router.get('/:username/:password', (req, res) => {
 });
 
 router.put('/:course/:user',(req,res)=>{
-    console.log(typeof(req.params.course));
-   //User.updateOne({name:req.params.user},{$set:{paidCourse_id:[100]}},(err,doc)=>{
+    console.log(req.params.course);
+    console.log(req.params.user);
+   //User.updateOne({name:req.params.user},{$push:{"paidCourse_id":req.params.course}},{upsert:true},(err,doc)=>{
   //User.updateOne({name:req.params.user},{$push:{paidCourse_id:req.params.course}},(err,doc)=>{
-  User.findOneAndUpdate({name:req.params.user},{$push:{paidCourse_id:req.params.course}},(err,doc)=>{
-        console.log(doc);
+ // User.findOneAndUpdate({name:req.params.user},{$push:{"paidCourse_id.$[]":[req.params.course]}},{upsert:true},(err,doc)=>{
+  User.find({name:req.params.user},(err,doc)=>{
+console.log(doc);
+  })  
+ 
+ User.updateOne({name:req.params.user},{$push:{"paidCourse_id":req.params.course}},(err,doc)=>{
+       
+ console.log(doc);
         res.send(doc)
     })
 })
@@ -45,9 +52,14 @@ User.find({paidCourse_id:{$elemMatch:{$eq:req.params.course}}},{_id:0,name:1},(e
     console.log("finally")
     console.log(doc);
     var flag=0;
+    if(doc.length==0){
+        console.log("onnum illa");
+        res.send("false");
+    }
+    else{
     for(i=0;i<doc.length && flag==0;i++){
         //console.log(doc[i].name);
-    if(doc[i].name=="req.params.name"){
+    if(doc[i].name==req.params.name){
         console.log("eruku");
         res.send("true");
         flag=1;
@@ -60,6 +72,7 @@ User.find({paidCourse_id:{$elemMatch:{$eq:req.params.course}}},{_id:0,name:1},(e
            res.send("false");
         }
     }
+}
 }
 })
 })

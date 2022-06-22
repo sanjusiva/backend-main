@@ -6,7 +6,7 @@ var User = mongoose.model('User', {
     email: { type: String },
     phone: { type: String },
     password: { type: String },
-    paidCouser_id:{ type:Array },
+    paidCourse_id:{ type:Array },
     user_type:{ type:String }
 });
 
