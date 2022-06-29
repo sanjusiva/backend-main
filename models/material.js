@@ -6,10 +6,11 @@ var Material = mongoose.model('Material', {
     link1: { type: String },
     link2: { type: String },
     link3: { type: String },
-    video1:{ type:String },
+    video1:{ type: String },
     video2:{ type:String },
     video3:{ type:String },
-    cost: { type: Number }
+    cost: { type: Number },
+    // v1:    { type: GridFs}
 });
 
 module.exports = { Material };
