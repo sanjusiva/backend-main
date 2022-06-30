@@ -17,6 +17,20 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/:message/:repMsg', (req, res) => {
+    console.log(req.params.message);
+    console.log(req.params.repMsg);
+    // Chat.find({message:req.params.message},{reply:1,_id:0},(err,docs)=>{
+    //         console.log("ans");
+    //         console.log(docs[0]);
+    //         res.send(docs[0])
+    //      })
+    Chat.aggregate( [{ $unwind: { path: "$reply", preserveNullAndEmptyArrays: true } },{ $match : { "reply.repMsg" : "yes good" } },{$project:{"reply.realMsg":1,_id:0}}],(err,docs)=>{
+        console.log(docs[0]);
+        res.send(docs[0]);
+    } )
+});
+
 router.post('/', (req, res) => {
     console.log("Hostname"+req.body.hostname);
     var chat = new Chat({
@@ -30,6 +44,21 @@ router.post('/', (req, res) => {
     }
     });
 });
+router.put('/:hostname/:message/:reply/:repHost',(req,res)=>{
+    console.log("I am here");
+    console.log(req.params.hostname);
+    console.log(req.params.message);
+    console.log(req.params.reply);
+    console.log(req.params.repHost);
+  
+ Chat.updateOne({hostname:req.params.repHost},{$push:{reply:{repHost:req.params.hostname,repMsg:req.params.reply,realMsg:req.params.message}}},{upsert:true},(err,doc)=>{
+        res.send(doc);
+        console.log(doc);
+    })
+    // Chat.find({message:req.params.message},{reply:1,_id:0},(err,docs)=>{
+    //     console.log("ans");
+    //  })
+})
 router.put('/:hostname/:message',(req,res)=>{
     console.log(req.params.hostname);
     console.log(req.params.message);
@@ -41,10 +70,10 @@ router.put('/:hostname/:message',(req,res)=>{
 //   })  
  
  Chat.updateOne({hostname:req.params.hostname},{$push:{"message":req.params.message}},{upsert:true},(err,doc)=>{
-       
- console.log(doc);
-        res.send(doc)
+        res.send(doc);
+        console.log(doc);
     })
+
 })
 
 router.delete('/:id',(req,res)=>{
@@ -58,5 +87,6 @@ router.delete('/:id',(req,res)=>{
             console.log('Error in Material Delete : '+JSON.stringify(err,undefined,2));
     });
 });
+
 
 module.exports = router;
