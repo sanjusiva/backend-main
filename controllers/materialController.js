@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     Material.find({_id:req.params.id},(err, docs) => {
-        if (!err) { res.send(docs[0]); }
+        if (!err) { res.send(docs[0]); console.log(docs);}
         else { console.log('Error in Retriving Materials :' + JSON.stringify(err, undefined, 2)); }
     });
 });
@@ -31,6 +31,7 @@ router.get('/:course/:course/:course',(req,res)=>{
         res.send(doc[0]);
     });
 })
+
 router.get('/:Domain', (req, res) => {
     Material.find({Domain:req.params.Domain},{_id:0,course_id:1},(err,doc)=>{
         res.send(doc)

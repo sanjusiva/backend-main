@@ -5,7 +5,7 @@ const fs=require('fs')
 
 const { mongoose } = require('./db.js');
 var materialController = require('./controllers/materialController.js');
-var userController = require('./controllers/userController.js');
+var userController = require('./routes/userRoutes');
 var chatController = require('./controllers/chatController.js');
 
 

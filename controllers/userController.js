@@ -5,29 +5,94 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var { User } = require('../models/users');
 
 // => localhost:3000/users/
-router.get('/', (req, res) => {
+// router.get('/', (req, res) => {
+//     User.find((err, docs) => {
+//         if (!err) { res.send(docs);}
+//         else { console.log('Error in Retriving Users :' + JSON.stringify(err, undefined, 2)); }
+//     });
+// });
+
+const getAllUser=async(req,res)=>{
     User.find((err, docs) => {
-        if (!err) { res.send(docs); }
+        if (!err) { res.send(docs);}
         else { console.log('Error in Retriving Users :' + JSON.stringify(err, undefined, 2)); }
     });
-});
+}
 
-router.get('/:username/:password', (req, res) => {
+
+// router.get('/:username/:password', (req, res) => {
+//     console.log("hi");
+//     User.find({name:req.params.username},{name:1,password:1,user_type:1,_id:0},(err,doc)=>{
+//         // console.log(doc)
+//         if(doc[0].name==req.params.username && doc[0].password==req.params.password){
+//         //return true;
+//         // res.send("true")
+//         console.log("admin true");
+//         res.status(200).json({role:doc[0].user_type});
+//         }
+//        else{
+//       //return false;
+//         // res.send("false")
+//         res.status(401).json({message:"invalid user"});
+//        }
+//     })
+// });
+
+const getUserAccess=async (req, res) => {
     console.log("hi");
-    User.find({name:req.params.username},{name:1,password:1,_id:0},(err,doc)=>{
-        //console.log(doc)
-        if(doc[0].name==req.params.username && doc[0].password==req.params.password){
-        //return true;
-        res.send("true")
-        //console.log("crt");
-       }
-       else{
+    // try{
+        User.find({name:req.params.username},{name:1,password:1,user_type:1,_id:0},(err,doc)=>{
+            console.log(doc);
+            if(doc[0]==undefined){
+         res.status(401).json({message:'invalid user.Please register'})
+            }
+            else if(doc[0].name==req.params.username && doc[0].password==req.params.password){
+            //return true;
+            // res.send("true")
+            console.log("admin true");
+            res.status(200).json({role:doc[0].user_type});
+            }
+            else if(doc[0].name!=req.params.username || doc[0].password!=req.params.password){
+         res.status(401).json({message:'username or password is invalid'})
+
+            }
+        // })}
+       //catch(err){
       //return false;
-        res.send("false")
-        //console.log("thu");
-       }
+        // res.send("false")
+    //     else{
+    //      res.status(401).json({message:'invalid user'})
+    //    }
+
     })
-});
+}
+
+// router.get('/:username/:password',async (req, res) => {
+//     console.log("hi");
+//     console.log(req.params.username);
+//     try{
+//         console.log("this is try block");
+//     const users=await User.find({name:req.params.username},{name:1,password:1,user_type:1,_id:0});
+//         // console.log(doc)
+//         console.log("un: "+users);
+//         console.log("un: "+user_type);
+//         if(users.name==req.params.username && users.password==req.params.password){
+//         //return true;
+//         // res.send("true")
+//         console.log("true");
+//         return res.status(200).json({role:doc[0].user_type});
+//         }
+//         else if(users.name!=req.params.username && users.password!=req.params.password){
+//             throw new Error("Invalid User")
+//         }
+//     }
+//        catch(err){
+//       //return false;
+//         // res.send("false")
+//         return res.status(401).json({error:err});
+//        }
+//     });
+
 
 router.put('/:course/:user',(req,res)=>{
     console.log(req.params.course);
@@ -99,4 +164,7 @@ router.post('/', (req, res) => {
     });
 });
 
-module.exports = router;
+module.exports = {
+    getAllUser:getAllUser,
+    getUserAccess:getUserAccess
+};
