@@ -4,10 +4,11 @@ const cors = require('cors');
 const fs=require('fs')
 
 const { mongoose } = require('./db.js');
-var materialController = require('./controllers/materialController.js');
-var userController = require('./routes/userRoutes');
+var materialRouter = require('./routes/materialRoutes');
+var userRouter = require('./routes/userRoutes');
 var chatController = require('./controllers/chatController.js');
-
+var chatMsgController = require('./controllers/chatMsgController');
+require('dotenv').config
 
 var app = express();
 app.use(bodyParser.json());
@@ -17,8 +18,9 @@ app.use(cors({ origin: 'http://localhost:4200' }));
 app.listen(3000, () => console.log('Server started at port : 3000'));
 
 
-app.use('/materials', materialController);
-app.use('/users', userController);
+app.use('/materials', materialRouter);
+app.use('/users', userRouter);
 app.use('/chats',chatController);
+app.use('/chatMsg',chatMsgController);
 
 
