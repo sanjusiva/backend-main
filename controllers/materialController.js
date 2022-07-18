@@ -32,6 +32,16 @@ class MaterialController{
             res.status(200).send({courseId: doc[0]});
         });
     }
+    static checkCourseID=(req,res)=>{
+        Material.find({courseId:req.params.courseId},(err,doc)=>{
+            if(doc.length==0){
+                res.status(200).send({message:'Can proceed'})
+            }
+            else{
+                res.status(400).send({message:'This Id is already taken.Please proceed with another courseId'})
+            }
+        })
+    }
    
     static postMaterial = async (req,res)=>{
         let mat=new Material({
