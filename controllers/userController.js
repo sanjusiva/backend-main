@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken');
 
 const { User } = require('../models/users');
 class UserController {
-    static getAllUser = async (req, res) => {
+    static getAllUser =  (req, res) => {
         User.find((err, docs) => {
             res.send(docs); 
         });
     }
 
-    static postUserAccess = async (req, res) => {
+    static postUserAccess =  (req, res) => {
         User.find({ name: req.body.username }, { name: 1, password: 1, userType: 1, _id: 1 }, (err, doc) => {
             if (doc[0] == undefined) {
                 res.status(401).json({ message: 'Invalid user...Please register' })
@@ -26,14 +26,14 @@ class UserController {
         })
     }
 
-    static buyCourse = async (req, res) => {
+    static buyCourse =  (req, res) => {
         User.updateOne({ name: req.params.user }, { $push: { "paidCourseId": req.params.course } }, (err, doc) => {
             res.status(200).json({ message: 'Successfully purchased' });
 
         })
     }
 
-    static getPaidCourse = async (req, res) => {
+    static getPaidCourse =  (req, res) => {
         User.find({ paidCourseId: { $elemMatch: { $eq: req.params.course } } }, { _id: 0, name: 1 }, (err, doc) => {
             let flag = 0;
             if (doc.length == 0) {
@@ -55,7 +55,7 @@ class UserController {
             }
         })
     }
-    static postUser = async (req, res) => {
+    static postUser =  (req, res) => {
         User.find({ name: req.body.name }, (err, doc) => {
             if (doc.length == 0) {
                 let user = new User({
@@ -74,7 +74,7 @@ class UserController {
                 });
             }
             else {
-                res.status(401).json({ message: "You have already registered" });
+                res.status(401).json({ message: "Username is already registered" });
             }
         });
     }

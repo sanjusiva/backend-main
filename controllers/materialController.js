@@ -4,30 +4,30 @@ const { Material } = require('../models/material');
 
 // => localhost:3000/materials/
 class MaterialController{
-    static getAllMaterial = async (req, res) => {
+    static getAllMaterial =  (req, res) => {
         Material.find((err, docs) => {
                 res.status(200).send({ docs });
         });
     }
     
-    static getIdMaterial = async (req, res) => {
+    static getIdMaterial =  (req, res) => {
         Material.find({_id:req.params.id},(err, docs) => {
                 res.status(200).send({ docs});
         });
     }
     
-    static getMaterial = async (req, res) => {
+    static getMaterial =  (req, res) => {
        Material.find({domain:req.params.domain},{_id:0},(err,doc)=>{
             res.status(200).send({ doc});
         });
     }
     
-    static getCourseCost = async (req,res)=>{
+    static getCourseCost =  (req,res)=>{
         Material.find({courseId:req.params.course},{_id:0,cost:1},(err,doc)=>{
             res.status(200).send({cost: doc[0].cost});
         });
     }
-    static getCourseId = async (req,res)=>{
+    static getCourseId =  (req,res)=>{
         Material.find({_id:req.params.id},{_id:0,courseId:1},(err,doc)=>{
             res.status(200).send({courseId: doc[0]});
         });
@@ -42,8 +42,7 @@ class MaterialController{
             }
         })
     }
-   
-    static postMaterial = async (req,res)=>{
+    static postMaterial =  (req,res)=>{
         let mat=new Material({
             domain : req.body.domain,
             courseId : req.body.courseId,
@@ -62,7 +61,7 @@ class MaterialController{
     }
     
     
-    static putMaterial = async (req,res)=>{
+    static putMaterial =  (req,res)=>{
         if(!ObjectId.isValid(req.params.id))
             return res.status(400).send(`No record with the given id : $(req.params.id)`);
         let mat={
@@ -82,7 +81,7 @@ class MaterialController{
         });
     }
     
-    static deleteMaterial = async (req,res)=>{
+    static deleteMaterial =  (req,res)=>{
         if(!ObjectId.isValid(req.params.id))
             return res.status(404).send(`No record with the given id : $(req.params.id)`);
     
