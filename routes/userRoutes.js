@@ -1,12 +1,13 @@
 var express=require('express')
-var {getAllUser,getUserAccess,buyCourse,getPaidCourse,postUser}=require('../controllers/userController');
 const userRouter=express.Router();
+const userController=require('../controllers/userController');
+const { authentication }=require('../middleware/authGuard')
 
-userRouter.get("/",getAllUser);
-userRouter.get("/:username/:password",getUserAccess);
-userRouter.put("/:course/:user",buyCourse);
-userRouter.get("/:course/:name/list",getPaidCourse);
-userRouter.post("/",postUser);
+userRouter.get("/",userController.getAllUser);
+userRouter.post("/login",userController.postUserAccess);
+userRouter.put("/:course/:user",userController.buyCourse);
+userRouter.get("/:course/:name/list",userController.getPaidCourse);
+userRouter.post("/",userController.postUser);
 
 module.exports=userRouter;
 

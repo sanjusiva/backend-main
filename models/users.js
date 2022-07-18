@@ -5,8 +5,8 @@ var User = mongoose.model('User', {
     email: { type: String },
     phone: { type: String },
     password: { type: String },
-    paidCourse_id:{ type:Array },
-    user_type:{ type:String }
+    paidCourseId:{ type:Array },
+    userType:{ type:String }
 });
 
 module.exports = { User };

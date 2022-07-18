@@ -1,120 +1,83 @@
-const express = require('express');
-var router = express.Router();
-var ObjectId = require('mongoose').Types.ObjectId;
 const jwt = require('jsonwebtoken');
 
 
-var { User } = require('../models/users');
+const { User } = require('../models/users');
+class UserController {
+    static getAllUser = async (req, res) => {
+        User.find((err, docs) => {
+            res.send(docs); 
+        });
+    }
 
-const getAllUser = async (req, res) => {
-    User.find((err, docs) => {
-        if (!err) { res.send(docs); }
-        else { console.log('Error in Retriving Users :' + JSON.stringify(err, undefined, 2)); }
-    });
-}
+    static postUserAccess = async (req, res) => {
+        User.find({ name: req.body.username }, { name: 1, password: 1, userType: 1, _id: 1 }, (err, doc) => {
+            if (doc[0] == undefined) {
+                res.status(401).json({ message: 'Invalid user...Please register' })
+            }
+            else if (doc[0].name == req.body.username && doc[0].password == req.body.password) {
+                let payload = { subject: doc._id };
+                let token = jwt.sign(payload, process.env.KEY_TOKEN);
+                res.status(200).send({ token, role: doc[0].userType });
+            }
+            else if (doc[0].name != req.body.username || doc[0].password != req.body.password) {
+                res.status(401).json({ message: 'Username or password is invalid' })
 
-const getUserAccess = async (req, res) => {
-    User.find({ name: req.params.username }, { name: 1, password: 1, user_type: 1, _id: 1 }, (err, doc) => {
-        console.log(doc);
-        if (doc[0] == undefined) {
-            res.status(401).json({ message: 'Invalid user...Please register' })
-        }
-        else if (doc[0].name == req.params.username && doc[0].password == req.params.password) {
-            console.log("admin true");
-            let payload = { subject: doc._id };
-            let token = jwt.sign(payload,process.env.KEY_TOKEN);
-            console.log(token);
-            res.status(200).send({ token,role: doc[0].user_type });
-            // res.status(200).json({ role: doc[0].user_type });
-        }
-        else if (doc[0].name != req.params.username || doc[0].password != req.params.password) {
-            res.status(401).json({ message: 'Username or password is invalid' })
+            }
+        })
+    }
 
-        }
-    })
-}
+    static buyCourse = async (req, res) => {
+        User.updateOne({ name: req.params.user }, { $push: { "paidCourseId": req.params.course } }, (err, doc) => {
+            res.status(200).json({ message: 'Successfully purchased' });
 
+        })
+    }
 
-const buyCourse = async (req, res) => {
-    console.log(req.params.course);
-    console.log(req.params.user);
+    static getPaidCourse = async (req, res) => {
+        User.find({ paidCourseId: { $elemMatch: { $eq: req.params.course } } }, { _id: 0, name: 1 }, (err, doc) => {
+            let flag = 0;
+            if (doc.length == 0) {
+                res.status(402).json({ message: "Haven't purchased" });
 
-    User.find({ name: req.params.user }, (err, doc) => {
-        console.log(doc);
-    })
-
-    User.updateOne({ name: req.params.user }, { $push: { "paidCourse_id": req.params.course } }, (err, doc) => {
-        // console.log(doc);
-        // res.send(doc)
-        res.status(200).json({ message: 'Successfully purchased' });
-
-    })
-}
-
-
-const getPaidCourse = async (req, res) => {
-    console.log(req.params.course);
-    console.log(req.params.name);
-    User.find({ paidCourse_id: { $elemMatch: { $eq: req.params.course } } }, { _id: 0, name: 1 }, (err, doc) => {
-        console.log("finally")
-        console.log(doc);
-        var flag = 0;
-        if (doc.length == 0) {
-            console.log("onnum illa");
-            // res.send("false");
-        res.status(401).json({ message: 'Empty' });
-
-        }
-        else {
-            for (i = 0; i < doc.length && flag == 0; i++) {
-                if (doc[i].name == req.params.name) {
-                    console.log("eruku");
-                    // res.send("true");
-                    res.status(200).json({ message: 'Success' });
-                    flag = 1;
-                }
-                else {
-                    console.log("illa");
-                    // console.log(i);
-                    if (i == doc.length - 1) {
-                        console.log("false");
-                        // res.send("false");
-                        res.status(401).json({ message: "Haven't purchased" });
-
+            }
+            else {
+                for (let i = 0; i < doc.length && flag == 0; i++) {
+                    if (doc[i].name == req.params.name) {
+                        res.status(200).json({ message: 'Success' });
+                        flag = 1;
+                    }
+                    else {
+                        if (i == doc.length - 1) {
+                            res.status(402).json({ message: "Haven't purchased" });
+                        }
                     }
                 }
             }
-        }
-    })
-}
-
-
-// router.post('/',
-const postUser = async (req, res) => {
-    var user = new User({
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        password: req.body.password,
-        paidCourse_id: req.body.paidCourse_id,
-        user_type: req.body.user_type
-    });
-    user.save((err, doc) => {
-        if (!err) { res.send(doc); }
-        else {
-            console.log('Error in User Save :' + JSON.stringify(err, undefined, 2));
-            if (err.code == 11000) {
-                console.log("nooo");
-                res.send(err);
+        })
+    }
+    static postUser = async (req, res) => {
+        User.find({ name: req.body.name }, (err, doc) => {
+            if (doc.length == 0) {
+                let user = new User({
+                    name: req.body.name,
+                    email: req.body.email,
+                    phone: req.body.phone,
+                    password: req.body.password,
+                    paidCourseId: req.body.paidCourseId,
+                    userType: req.body.userType
+                });
+                user.save((err, doc) => {
+                    if (!err) { res.status(200).json({ msg: 'Successfully Registered' }) }
+                    else {
+                        res.status(401).json({ message: 'Error in Posting Materials' })
+                    }
+                });
             }
-        }
-    });
+            else {
+                res.status(401).json({ message: "You have already registered" });
+            }
+        });
+    }
 }
+module.exports = UserController;
 
-module.exports = {
-    getAllUser,
-    getUserAccess,
-    buyCourse,
-    getPaidCourse,
-    postUser
-};

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 var Material = mongoose.model('Material', {
-    Domain: { type: String },
-    course_id: { type: Number },
+    domain: { type: String },
+    courseId: { type: Number },
     link1: { type: String },
     link2: { type: String },
     link3: { type: String },
@@ -10,6 +10,7 @@ var Material = mongoose.model('Material', {
     video2:{ type:String },
     video3:{ type:String },
     cost: { type: Number },
+    image:{type:String}
 });
 
 module.exports = { Material };

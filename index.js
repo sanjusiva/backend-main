@@ -1,13 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const fs=require('fs')
 
 const { mongoose } = require('./db.js');
 var materialRouter = require('./routes/materialRoutes');
 var userRouter = require('./routes/userRoutes');
-var chatController = require('./controllers/chatController.js');
-var chatMsgController = require('./controllers/chatMsgController');
 require('dotenv').config
 
 var app = express();
@@ -20,7 +17,5 @@ app.listen(3000, () => console.log('Server started at port : 3000'));
 
 app.use('/materials', materialRouter);
 app.use('/users', userRouter);
-app.use('/chats',chatController);
-app.use('/chatMsg',chatMsgController);
 
 
