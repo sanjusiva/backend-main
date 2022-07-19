@@ -22,12 +22,12 @@ class MaterialController{
         });
     }
     
-    static getCourseCost =  (req,res)=>{
+    static getCourseCost =(req,res)=>{
         Material.find({courseId:req.params.course},{_id:0,cost:1},(err,doc)=>{
             res.status(200).send({cost: doc[0].cost});
         });
     }
-    static getCourseId =  (req,res)=>{
+    static getCourseId = (req,res)=>{
         Material.find({_id:req.params.id},{_id:0,courseId:1},(err,doc)=>{
             res.status(200).send({courseId: doc[0]});
         });
