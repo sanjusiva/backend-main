@@ -6,6 +6,7 @@ const { authentication }=require('../middleware/authGuard')
 materialRouter.get("/",authentication,materialController.getAllMaterial);
 materialRouter.get("/:id",authentication,materialController.getIdMaterial);
 materialRouter.get("/:id/courseId",authentication,materialController.getCourseId);
+materialRouter.get("/:courseId/get/domain/name/getDomainName",materialController.getDomainName);
 materialRouter.get("/:Domain/:course",authentication,materialController.getMaterial);
 materialRouter.get("/:course/cost/courseCost",authentication,materialController.getCourseCost);
 materialRouter.get("/:courseId/courseId/check/checkCourseId",materialController.checkCourseID);

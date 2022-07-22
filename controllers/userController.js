@@ -1,39 +1,55 @@
 const jwt = require('jsonwebtoken');
-
+const bcrypt = require('bcryptjs');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 const { User } = require('../models/users');
 class UserController {
-    static getAllUser =  (req, res) => {
+    static getAllUser = (req, res) => {
         User.find((err, docs) => {
-            res.send(docs); 
+            if (!err)
+                res.status(200).send({ docs });
+            else
+                res.status(401).send(err)
+        });
+    }
+    static getUserId = (req, res) => {
+        User.find({ _id: req.params.id }, (err, docs) => {
+            if (!err)
+                res.status(200).send({ docs });
+            else
+                res.status(401).send(err)
         });
     }
 
-    static postUserAccess =  (req, res) => {
-        User.find({ name: req.body.username }, { name: 1, password: 1, userType: 1, _id: 1 }, (err, doc) => {
-            if (doc[0] == undefined) {
-                res.status(401).json({ message: 'Invalid user...Please register' })
+    static postUserAccess =  async (req, res) => {
+        const user =  await User.findOne({ name: req.body.username });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid username or password' })
+        }
+        else {
+            let payload = req.body.password;
+            let token = jwt.sign(payload, process.env.KEY_TOKEN)
+            const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password)
+            if (!isPasswordCorrect) {
+                res.status(401).json({ message: 'incorrect password' })
             }
-            else if (doc[0].name == req.body.username && doc[0].password == req.body.password) {
-                let payload = { subject: doc._id };
-                let token = jwt.sign(payload, process.env.KEY_TOKEN);
-                res.status(200).send({ token, role: doc[0].userType });
+            else {
+                res.status(200).json({ token: token, role: user.userType, _id: user._id });
             }
-            else if (doc[0].name != req.body.username || doc[0].password != req.body.password) {
-                res.status(401).json({ message: 'Username or password is invalid' })
 
-            }
-        })
+        }
     }
 
-    static buyCourse =  (req, res) => {
+    static buyCourse = (req, res) => {
         User.updateOne({ name: req.params.user }, { $push: { "paidCourseId": req.params.course } }, (err, doc) => {
-            res.status(200).json({ message: 'Successfully purchased' });
-
+            if (!err)
+                res.status(200).json({ message: 'Successfully purchased' });
+            else
+                res.status(401).send(err)
         })
     }
 
-    static getPaidCourse =  (req, res) => {
+    static getPaidCourse = (req, res) => {
         User.find({ paidCourseId: { $elemMatch: { $eq: req.params.course } } }, { _id: 0, name: 1 }, (err, doc) => {
             let flag = 0;
             if (doc.length == 0) {
@@ -55,19 +71,20 @@ class UserController {
             }
         })
     }
-    static postUser =  (req, res) => {
+    static postUser = (req, res) => {
+        const hashedPassword = bcrypt.hashSync(req.body.password, 12)
         User.find({ name: req.body.name }, (err, doc) => {
             if (doc.length == 0) {
                 let user = new User({
                     name: req.body.name,
                     email: req.body.email,
                     phone: req.body.phone,
-                    password: req.body.password,
+                    password: hashedPassword,
                     paidCourseId: req.body.paidCourseId,
                     userType: req.body.userType
                 });
                 user.save((err, doc) => {
-                    if (!err) { res.status(200).json({ msg: 'Successfully Registered' }) }
+                    if (!err) { res.status(200).json({ message: 'Successfully Registered' }) }
                     else {
                         res.status(401).json({ message: 'Error in Posting Materials' })
                     }
@@ -76,6 +93,41 @@ class UserController {
             else {
                 res.status(401).json({ message: "Username is already registered" });
             }
+        });
+    }
+
+    static putUser = (req, res) => {
+        if (!ObjectId.isValid(req.params.id))
+            return res.status(400).send(`No record with the given id : $(req.params.id)`);
+        let user = {
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            userType: req.body.userType,
+            password: req.body.password
+        };
+        User.findByIdAndUpdate(req.params.id, { $set: user }, { new: true }, (err, data) => {
+            if (!err)
+                res.status(200).json({ message: 'Updated Successfully' });
+            else
+                res.status(401).send(err)
+        });
+    }
+
+    static postLoginDetail = (req, res) => {
+        const hashedPassword = bcrypt.hashSync(req.body.password, 12)
+        var user = new User({
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            password: hashedPassword,
+            userType: req.body.userType
+        });
+        user.save((err, doc) => {
+            if (!err)
+                res.status(200).json(doc)
+            else
+                res.status(400).json({ message: 'Error in storing admin details', doc })
         });
     }
 }
